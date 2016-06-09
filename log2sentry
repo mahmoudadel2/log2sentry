@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 __author__ = 'Mahmoud Adel <mahmoud.adel2@gmail.com>'
 
-
+import os
 import argparse
 from raven import Client as SentryClient
 
 
-dsn = ''  # Your Sentry DSN here
 parser = argparse.ArgumentParser()
-parser.add_argument('-a', '--application', dest='app', metavar='APP_NAME', help='Application name, e.g. Nginx, MySQL', required=True)
+parser.add_argument('-a', '--application', dest='app', metavar='APP_NAME', help='Application name, e.g. Nginx, MySQL',
+                    required=True)
 parser.add_argument('-l', '--log-file', dest='logfile', metavar='LOG_FILE', help='Log file to monitor', required=True)
 args = vars(parser.parse_args())
 app = args['app']
@@ -16,8 +16,8 @@ logfile = args['logfile']
 
 
 def tellsentry(message):
-    client = SentryClient(dsn)
-    client.captureMessage(message, Tags={'app': app})
+    client = SentryClient()
+    client.captureMessage(message)
 
 
 def watchlog(logfile):
@@ -26,13 +26,17 @@ def watchlog(logfile):
         while True:
             line = f.readline()
             if line:
-                message = '''%s: %s
+                print '[%s] Sending to Sentry: %s' % (app, line)
+                message = '''[%s] %s
 Message from: %s
                 ''' % (app, line, logfile)
                 tellsentry(message)
 
 
 def main():
+    if 'SENTRY_DSN' not in os.environ.keys():
+        print 'You must set SENTRY_DSN environment variable'
+        exit(1)
     try:
         watchlog(logfile)
     except IOError:
