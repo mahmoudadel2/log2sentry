@@ -4,6 +4,8 @@ Monitor log files and send messages to Sentry.
 
 **Installation:**
 
+`sudo pip install raven --upgrade`
+
 `sudo wget https://raw.githubusercontent.com/mahmoudadel2/log2sentry/master/log2sentry -O /usr/local/bin/log2sentry`
 
 `sudo chmod u+x /usr/local/bin/log2sentry`
